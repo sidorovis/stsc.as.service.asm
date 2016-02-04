@@ -13,6 +13,11 @@ import org.apache.logging.log4j.core.config.XMLConfigurationFactory;
 import stsc.common.service.ApplicationHelper;
 import stsc.common.service.StopableApp;
 
+/**
+ * This is as service like (executable) class that automatically read experiment settings from database and start-up experiment on selected distributed system
+ * (spark, hadoop like).
+ * 
+ */
 final class AutomaticSelectorModule implements StopableApp {
 
 	static {
