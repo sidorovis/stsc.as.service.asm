@@ -88,6 +88,10 @@
 			<artifactId>stsc.general</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>stsc</groupId>
+			<artifactId>stsc.distributed.spark</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>mysql</groupId>
 			<artifactId>mysql-connector-java</artifactId>
 		</dependency>

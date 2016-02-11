@@ -27,15 +27,24 @@ final class AutomaticSelectorModule implements StopableApp {
 
 	private final Logger logger = LogManager.getLogger(AutomaticSelectorModule.class.getName());
 
+	private volatile boolean stopped = false;
+	
+	private volatile int sleepMicroseconds = 1000;
+
 	private AutomaticSelectorModule() throws FileNotFoundException, IOException, SQLException {
 	}
 
 	@Override
 	public void start() throws Exception {
+		while (!stopped) {
+			
+			Thread.sleep(sleepMicroseconds);
+		}
 	}
 
 	@Override
 	public void stop() throws Exception {
+		this.stopped = true;
 	}
 
 	@Override
@@ -46,7 +55,10 @@ final class AutomaticSelectorModule implements StopableApp {
 	public static void main(String[] args) {
 		try {
 			final StopableApp app = new AutomaticSelectorModule();
-			ApplicationHelper.createHelper(app);
+			ApplicationHelper.createHelper(app, (e) -> {
+				e.printStackTrace();
+				return true;
+			});
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
