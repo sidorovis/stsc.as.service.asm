@@ -22,6 +22,12 @@ import stsc.general.simulator.multistarter.BadParameterException;
 import stsc.general.simulator.multistarter.grid.SimulatorSettingsGridList;
 import stsc.general.strategy.TradingStrategy;
 
+/**
+ * This class contain full cycle for automatic selector module: <br/>
+ * 1. look for ready experiment at database and book them; <br/>
+ * 2. solve experiment; <br/>
+ * 3. store experiment results (trading strategies) to database.<br/>
+ */
 public final class ExperimentSolver {
 
 	static {
