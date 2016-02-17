@@ -3,9 +3,6 @@ package stsc.as.service.asm;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 import java.util.TimeZone;
 import java.util.logging.Level;
 
@@ -13,20 +10,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.config.XMLConfigurationFactory;
 
-import stsc.common.algorithms.BadAlgorithmException;
 import stsc.common.service.ApplicationHelper;
 import stsc.common.service.StopableApp;
 import stsc.common.storage.StockStorage;
 import stsc.database.migrations.optimizer.OptimizerDatabaseSettings;
-import stsc.database.service.schemas.optimizer.experiments.OrmliteOptimizerExperiment;
 import stsc.database.service.storages.optimizer.OptimizerDatabaseStorage;
-import stsc.database.service.storages.optimizer.OptimizerTradingStrategiesDatabaseStorage;
-import stsc.distributed.common.types.SimulatorSettingsExternalizable;
-import stsc.distributed.spark.grid.GridSparkStarter;
-import stsc.general.simulator.SimulatorConfiguration;
-import stsc.general.simulator.multistarter.BadParameterException;
-import stsc.general.simulator.multistarter.grid.SimulatorSettingsGridList;
-import stsc.general.strategy.TradingStrategy;
 import stsc.storage.mocks.StockStorageMock;
 
 /**
@@ -45,7 +33,7 @@ final class AutomaticSelectorModule implements StopableApp {
 
 	private volatile boolean stopped = false;
 
-	final OptimizerDatabaseStorage optimizerDatabaseStorage;
+	private final OptimizerDatabaseStorage optimizerDatabaseStorage;
 
 	private volatile int sleepMicroseconds = 1000;
 
@@ -62,49 +50,10 @@ final class AutomaticSelectorModule implements StopableApp {
 	@Override
 	public void start() throws Exception {
 		while (!stopped) {
-			final Optional<OrmliteOptimizerExperiment> experiment = optimizerDatabaseStorage.getExperimentsStorage().bookExperiment();
-			if (experiment.isPresent()) {
-				solveExperiment(experiment.get());
-			}
+			final ExperimentSolver experimentSolver = new ExperimentSolver(optimizerDatabaseStorage, stockStorage);
+			experimentSolver.findAndSolveExperiment();
 			Thread.sleep(sleepMicroseconds);
 		}
-	}
-
-	private void solveExperiment(OrmliteOptimizerExperiment experiment) {
-		try {
-			executeSolver(experiment);
-			experiment.setProcessed();
-			optimizerDatabaseStorage.getExperimentsStorage().saveExperiment(experiment);
-		} catch (Exception e) {
-			try {
-				optimizerDatabaseStorage.getExperimentsStorage().deleteLock(experiment);
-			} catch (SQLException de) {
-				logger.error("while deleting lock for ", experiment, de);
-			}
-		}
-	}
-
-	private void executeSolver(OrmliteOptimizerExperiment ormliteOptimizerExperiment) throws SQLException, BadParameterException, BadAlgorithmException {
-		final ExperimentTransformer experimentTransformer = new ExperimentTransformer(optimizerDatabaseStorage.getExperimentsStorage());
-		final SimulatorSettingsGridList experiment = experimentTransformer.transform(stockStorage, ormliteOptimizerExperiment);
-
-		final ArrayList<SimulatorSettingsExternalizable> externalizableExperiment = new ArrayList<>();
-		for (SimulatorConfiguration ss : experiment) {
-			externalizableExperiment.add(new SimulatorSettingsExternalizable(ss));
-		}
-
-		final GridSparkStarter gridSparkStarter = new GridSparkStarter();
-		final List<TradingStrategy> tradingStrategies = gridSparkStarter.searchOnSpark(externalizableExperiment);
-
-		for (TradingStrategy ts : tradingStrategies) {
-			saveTradingStrategy(ts);
-		}
-	}
-
-	private void saveTradingStrategy(TradingStrategy ts) throws SQLException {
-		final OptimizerTradingStrategiesDatabaseStorage storage = optimizerDatabaseStorage.getTradingStrategiesStorage();
-		final TradingStrategyTransformer transformer = new TradingStrategyTransformer(storage);
-		transformer.transformAndStore(ts);
 	}
 
 	@Override
