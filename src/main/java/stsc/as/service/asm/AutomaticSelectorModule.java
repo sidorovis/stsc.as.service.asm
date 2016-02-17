@@ -18,8 +18,9 @@ import stsc.common.service.ApplicationHelper;
 import stsc.common.service.StopableApp;
 import stsc.common.storage.StockStorage;
 import stsc.database.migrations.optimizer.OptimizerDatabaseSettings;
-import stsc.database.service.schemas.optimizer.OrmliteOptimizerExperiment;
+import stsc.database.service.schemas.optimizer.experiments.OrmliteOptimizerExperiment;
 import stsc.database.service.storages.optimizer.OptimizerDatabaseStorage;
+import stsc.database.service.storages.optimizer.OptimizerTradingStrategiesDatabaseStorage;
 import stsc.distributed.common.types.SimulatorSettingsExternalizable;
 import stsc.distributed.spark.grid.GridSparkStarter;
 import stsc.general.simulator.SimulatorConfiguration;
@@ -61,7 +62,7 @@ final class AutomaticSelectorModule implements StopableApp {
 	@Override
 	public void start() throws Exception {
 		while (!stopped) {
-			final Optional<OrmliteOptimizerExperiment> experiment = optimizerDatabaseStorage.getExperiments().bookExperiment();
+			final Optional<OrmliteOptimizerExperiment> experiment = optimizerDatabaseStorage.getExperimentsStorage().bookExperiment();
 			if (experiment.isPresent()) {
 				solveExperiment(experiment.get());
 			}
@@ -73,10 +74,10 @@ final class AutomaticSelectorModule implements StopableApp {
 		try {
 			executeSolver(experiment);
 			experiment.setProcessed();
-			optimizerDatabaseStorage.getExperiments().saveExperiment(experiment);
+			optimizerDatabaseStorage.getExperimentsStorage().saveExperiment(experiment);
 		} catch (Exception e) {
 			try {
-				optimizerDatabaseStorage.getExperiments().deleteLock(experiment);
+				optimizerDatabaseStorage.getExperimentsStorage().deleteLock(experiment);
 			} catch (SQLException de) {
 				logger.error("while deleting lock for ", experiment, de);
 			}
@@ -84,7 +85,7 @@ final class AutomaticSelectorModule implements StopableApp {
 	}
 
 	private void executeSolver(OrmliteOptimizerExperiment ormliteOptimizerExperiment) throws SQLException, BadParameterException, BadAlgorithmException {
-		final ExperimentTransformer experimentTransformer = new ExperimentTransformer(optimizerDatabaseStorage.getExperiments());
+		final ExperimentTransformer experimentTransformer = new ExperimentTransformer(optimizerDatabaseStorage.getExperimentsStorage());
 		final SimulatorSettingsGridList experiment = experimentTransformer.transform(stockStorage, ormliteOptimizerExperiment);
 
 		final ArrayList<SimulatorSettingsExternalizable> externalizableExperiment = new ArrayList<>();
@@ -93,9 +94,17 @@ final class AutomaticSelectorModule implements StopableApp {
 		}
 
 		final GridSparkStarter gridSparkStarter = new GridSparkStarter();
-		final List<TradingStrategy> tradingStrategies = gridSparkStarter.searchOnSpark(externalizableExperiment); 
-		// TODO load settings for search from database
-		// TODO write them to database;
+		final List<TradingStrategy> tradingStrategies = gridSparkStarter.searchOnSpark(externalizableExperiment);
+
+		for (TradingStrategy ts : tradingStrategies) {
+			saveTradingStrategy(ts);
+		}
+	}
+
+	private void saveTradingStrategy(TradingStrategy ts) throws SQLException {
+		final OptimizerTradingStrategiesDatabaseStorage storage = optimizerDatabaseStorage.getTradingStrategiesStorage();
+		final TradingStrategyTransformer transformer = new TradingStrategyTransformer(storage);
+		transformer.transformAndStore(ts);
 	}
 
 	@Override
