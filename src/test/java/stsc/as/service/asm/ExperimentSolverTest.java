@@ -1,6 +1,7 @@
 package stsc.as.service.asm;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.sql.SQLException;
 
 import org.junit.Test;
@@ -13,8 +14,8 @@ import stsc.storage.mocks.StockStorageMock;
 public class ExperimentSolverTest {
 
 	@Test
-	public void testExperimentSolver() throws SQLException, LiquibaseException, IOException {
-		final OptimizerDatabaseSettings databaseSettings = OptimizerDatabaseSettings.test().dropAll().migrate();
+	public void testExperimentSolver() throws SQLException, LiquibaseException, IOException, URISyntaxException {
+		final OptimizerDatabaseSettings databaseSettings = OptimizerDatabaseSettings.test().migrate();
 		final OptimizerDatabaseStorage storage = new OptimizerDatabaseStorage(databaseSettings);
 
 		final ExperimentSolver experimentSolver = new ExperimentSolver(storage, StockStorageMock.getStockStorage());
