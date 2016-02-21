@@ -22,8 +22,13 @@ import stsc.database.service.schemas.optimizer.experiments.OrmliteOptimizerExecu
 import stsc.database.service.schemas.optimizer.experiments.OrmliteOptimizerExperiment;
 import stsc.database.service.schemas.optimizer.experiments.OrmliteOptimizerStringParameter;
 import stsc.database.service.schemas.optimizer.experiments.OrmliteOptimizerSubExecutionParameter;
+import stsc.database.service.schemas.optimizer.trading.strategies.OrmliteOptimizerDoubleMetric;
+import stsc.database.service.schemas.optimizer.trading.strategies.OrmliteOptimizerEquityCurveValue;
+import stsc.database.service.schemas.optimizer.trading.strategies.OrmliteOptimizerIntegerMetric;
+import stsc.database.service.schemas.optimizer.trading.strategies.OrmliteOptimizerMetricsTuple;
 import stsc.database.service.schemas.optimizer.trading.strategies.OrmliteOptimizerTradingStrategy;
 import stsc.database.service.storages.optimizer.OptimizerDatabaseStorage;
+import stsc.general.statistic.MetricType;
 import stsc.storage.mocks.StockStorageMock;
 
 public class ExperimentSolverTest {
@@ -60,7 +65,7 @@ public class ExperimentSolverTest {
 
 		final OrmliteOptimizerStringParameter e = new OrmliteOptimizerStringParameter(a2.getId());
 		e.setParameterName("e");
-		e.setParameterDomen("open");
+		e.setParameterDomen("high|low|close");
 		storage.getExperimentsStorage().saveStringParameter(e);
 
 		final OrmliteOptimizerExecution d = new OrmliteOptimizerExecution(experiment.getId(), 2);
@@ -114,7 +119,19 @@ public class ExperimentSolverTest {
 
 	private void findExperimentResults(final OptimizerDatabaseStorage storage) throws SQLException {
 		final List<OrmliteOptimizerTradingStrategy> loadTradingStrategies = storage.getTradingStrategiesStorage().loadTradingStrategies();
-		Assert.assertEquals(8, loadTradingStrategies.size());
+		loadTradingStrategies.forEach((ts) -> {
+			try {
+				final List<OrmliteOptimizerMetricsTuple> metricsTuples = storage.getTradingStrategiesStorage().loadMetricsTuples(ts);
+				Assert.assertEquals(1, metricsTuples.size());
+				final List<OrmliteOptimizerDoubleMetric> loadDoubleMetrics = storage.getTradingStrategiesStorage().loadDoubleMetrics(metricsTuples.get(0));
+				final List<OrmliteOptimizerIntegerMetric> loadIntegerMetrics = storage.getTradingStrategiesStorage().loadIntegerMetrics(metricsTuples.get(0));
+				Assert.assertEquals(MetricType.values().length, loadDoubleMetrics.size() + loadIntegerMetrics.size());
+				final List<OrmliteOptimizerEquityCurveValue> loadEquityCurveValues = storage.getTradingStrategiesStorage().loadEquityCurveValues(metricsTuples.get(0));
+				Assert.assertEquals(1463, loadEquityCurveValues.size());
+			} catch (Exception e) {
+			}
+		});
+		Assert.assertEquals(24, loadTradingStrategies.size());
 	}
 
 }

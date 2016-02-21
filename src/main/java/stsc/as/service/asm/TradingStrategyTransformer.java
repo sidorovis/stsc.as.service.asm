@@ -12,6 +12,7 @@ import stsc.common.algorithms.MutableAlgorithmConfiguration;
 import stsc.common.algorithms.StockExecution;
 import stsc.database.service.schemas.optimizer.trading.strategies.OrmliteOptimizerDoubleArgument;
 import stsc.database.service.schemas.optimizer.trading.strategies.OrmliteOptimizerDoubleMetric;
+import stsc.database.service.schemas.optimizer.trading.strategies.OrmliteOptimizerEquityCurveValue;
 import stsc.database.service.schemas.optimizer.trading.strategies.OrmliteOptimizerExecutionInstance;
 import stsc.database.service.schemas.optimizer.trading.strategies.OrmliteOptimizerIntegerArgument;
 import stsc.database.service.schemas.optimizer.trading.strategies.OrmliteOptimizerIntegerMetric;
@@ -20,6 +21,7 @@ import stsc.database.service.schemas.optimizer.trading.strategies.OrmliteOptimiz
 import stsc.database.service.schemas.optimizer.trading.strategies.OrmliteOptimizerSubExecutionArgument;
 import stsc.database.service.schemas.optimizer.trading.strategies.OrmliteOptimizerTradingStrategy;
 import stsc.database.service.storages.optimizer.OptimizerTradingStrategiesDatabaseStorage;
+import stsc.general.statistic.EquityCurve;
 import stsc.general.statistic.MetricType;
 import stsc.general.statistic.Metrics;
 import stsc.general.strategy.TradingStrategy;
@@ -33,7 +35,7 @@ public final class TradingStrategyTransformer {
 	}
 
 	public void transformAndStore(final TradingStrategy ts) throws SQLException {
-		final OrmliteOptimizerTradingStrategy ormliteTradingStrategy = new OrmliteOptimizerTradingStrategy();
+		final OrmliteOptimizerTradingStrategy ormliteTradingStrategy = new OrmliteOptimizerTradingStrategy((int) ts.getSettings().getId());
 		ormliteTradingStrategy.setPeriodFrom(ts.getSettings().getInit().getPeriod().getFrom());
 		ormliteTradingStrategy.setPeriodTo(ts.getSettings().getInit().getPeriod().getTo());
 		storage.saveTradingStrategy(ormliteTradingStrategy);
@@ -49,7 +51,7 @@ public final class TradingStrategyTransformer {
 		transformAndStore(ormliteTradingStrategy.getId(), ts.getMetrics());
 	}
 
-	private void transformAndStore(Integer tradingStrategyId, Metrics metrics) throws SQLException {
+	private void transformAndStore(final int tradingStrategyId, final Metrics metrics) throws SQLException {
 		final OrmliteOptimizerMetricsTuple metricsTuple = new OrmliteOptimizerMetricsTuple(tradingStrategyId);
 		storage.saveMetricsTuple(metricsTuple);
 		for (Entry<MetricType, Integer> v : metrics.getIntegerMetrics().entrySet()) {
@@ -63,6 +65,13 @@ public final class TradingStrategyTransformer {
 			doubleMetric.setMetricType(v.getKey().name());
 			doubleMetric.setMetricValue(v.getValue());
 			storage.saveDoubleMetric(doubleMetric);
+		}
+		final EquityCurve equityCurveInMoney = metrics.getEquityCurveInMoney();
+		for (int i = 0; i < equityCurveInMoney.size(); ++i) {
+			final OrmliteOptimizerEquityCurveValue equityCurveValue = new OrmliteOptimizerEquityCurveValue(metricsTuple.getId());
+			equityCurveValue.setTimestamp(equityCurveInMoney.get(i).date);
+			equityCurveValue.setValue(equityCurveInMoney.get(i).value);
+			storage.saveEquityCurveValue(equityCurveValue);
 		}
 	}
 
