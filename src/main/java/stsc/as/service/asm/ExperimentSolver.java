@@ -28,7 +28,7 @@ import stsc.general.strategy.TradingStrategy;
  * 2. solve experiment; <br/>
  * 3. store experiment results (trading strategies) to database.<br/>
  */
-public final class ExperimentSolver {
+final class ExperimentSolver {
 
 	static {
 		System.setProperty(XMLConfigurationFactory.CONFIGURATION_FILE_PROPERTY, "./config/log4j2.xml");

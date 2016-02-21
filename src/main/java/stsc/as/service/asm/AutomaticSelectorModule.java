@@ -18,9 +18,10 @@ import stsc.database.service.storages.optimizer.OptimizerDatabaseStorage;
 import stsc.storage.mocks.StockStorageMock;
 
 /**
- * This is as service like (executable) class that automatically read experiment settings from database and start-up experiment on selected distributed system
- * (spark, hadoop like).
- * 
+ * This is as service (executable) class that do next: <br/>
+ * 1. automatically read experiment settings from database; <br/>
+ * 2. start-up experiment on selected distributed system (spark, hadoop like); <br/>
+ * 3. store results back to database.
  */
 final class AutomaticSelectorModule implements StopableApp {
 

@@ -26,7 +26,10 @@ import stsc.general.statistic.MetricType;
 import stsc.general.statistic.Metrics;
 import stsc.general.strategy.TradingStrategy;
 
-public final class TradingStrategyTransformer {
+/**
+ * This class transform {@link TradingStrategy} from internal model to database model and store that class to database.
+ */
+final class TradingStrategyTransformer {
 
 	final private OptimizerTradingStrategiesDatabaseStorage storage;
 
