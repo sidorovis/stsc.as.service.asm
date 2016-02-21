@@ -40,11 +40,11 @@ public final class TradingStrategyTransformer {
 		final List<StockExecution> stockExecutions = ts.getSettings().getInit().getExecutionsStorage().getStockExecutions();
 		int index = 0;
 		for (StockExecution se : stockExecutions) {
-			transformAndStore(ormliteTradingStrategy.getId(), se, AlgorithmType.STOCK_VALUE.name(), index++);
+			transformAndStore(ormliteTradingStrategy.getId(), se, AlgorithmType.STOCK_VALUE.getValue(), index++);
 		}
 		final List<EodExecution> eodExecutions = ts.getSettings().getInit().getExecutionsStorage().getEodExecutions();
 		for (EodExecution se : eodExecutions) {
-			transformAndStore(ormliteTradingStrategy.getId(), se, AlgorithmType.EOD_VALUE.name(), index++);
+			transformAndStore(ormliteTradingStrategy.getId(), se, AlgorithmType.EOD_VALUE.getValue(), index++);
 		}
 		transformAndStore(ormliteTradingStrategy.getId(), ts.getMetrics());
 	}

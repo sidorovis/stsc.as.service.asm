@@ -54,7 +54,7 @@ final class ExperimentTransformer {
 			}
 		}
 
-		return null;
+		return factory.getList();
 	}
 
 	private AlgorithmSettingsIteratorFactory transformExecution(OrmliteOptimizerExecution execution) throws SQLException, BadParameterException {
@@ -70,11 +70,11 @@ final class ExperimentTransformer {
 		}
 		final List<OrmliteOptimizerStringParameter> loadStringParameters = optimizerExperimentsDatabaseStorage.loadStringParameters(execution);
 		for(OrmliteOptimizerStringParameter dp : loadStringParameters) {
-			algorithmFactory.add(new MpString(dp.getParameterName(), Lists.newArrayList(dp.getParameterDomen().split("|"))));
+			algorithmFactory.add(new MpString(dp.getParameterName(), Lists.newArrayList(dp.getParameterDomen().split("\\|"))));
 		}
 		final List<OrmliteOptimizerSubExecutionParameter> loadSubExecutionParameters = optimizerExperimentsDatabaseStorage.loadSubExecutionParameters(execution);
 		for(OrmliteOptimizerSubExecutionParameter dp : loadSubExecutionParameters) {
-			algorithmFactory.add(new MpSubExecution(dp.getParameterName(), Lists.newArrayList(dp.getParameterDomen().split("|"))));
+			algorithmFactory.add(new MpSubExecution(dp.getParameterName(), Lists.newArrayList(dp.getParameterDomen().split("\\|"))));
 		}
 		return algorithmFactory;
 	}
