@@ -7,9 +7,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import stsc.common.algorithms.AlgorithmType;
-import stsc.common.algorithms.EodExecution;
+import stsc.common.algorithms.EodExecutionInstance;
 import stsc.common.algorithms.MutableAlgorithmConfiguration;
-import stsc.common.algorithms.StockExecution;
+import stsc.common.algorithms.StockExecutionInstance;
 import stsc.database.service.schemas.optimizer.trading.strategies.OrmliteOptimizerDoubleArgument;
 import stsc.database.service.schemas.optimizer.trading.strategies.OrmliteOptimizerDoubleMetric;
 import stsc.database.service.schemas.optimizer.trading.strategies.OrmliteOptimizerEquityCurveValue;
@@ -42,13 +42,13 @@ final class TradingStrategyTransformer {
 		ormliteTradingStrategy.setPeriodFrom(ts.getSettings().getInit().getPeriod().getFrom());
 		ormliteTradingStrategy.setPeriodTo(ts.getSettings().getInit().getPeriod().getTo());
 		storage.saveTradingStrategy(ormliteTradingStrategy);
-		final List<StockExecution> stockExecutions = ts.getSettings().getInit().getExecutionsStorage().getStockExecutions();
+		final List<StockExecutionInstance> stockExecutions = ts.getSettings().getInit().getExecutionsStorage().getStockExecutions();
 		int index = 0;
-		for (StockExecution se : stockExecutions) {
+		for (StockExecutionInstance se : stockExecutions) {
 			transformAndStore(ormliteTradingStrategy.getId(), se, AlgorithmType.STOCK_VALUE.getValue(), index++);
 		}
-		final List<EodExecution> eodExecutions = ts.getSettings().getInit().getExecutionsStorage().getEodExecutions();
-		for (EodExecution se : eodExecutions) {
+		final List<EodExecutionInstance> eodExecutions = ts.getSettings().getInit().getExecutionsStorage().getEodExecutions();
+		for (EodExecutionInstance se : eodExecutions) {
 			transformAndStore(ormliteTradingStrategy.getId(), se, AlgorithmType.EOD_VALUE.getValue(), index++);
 		}
 		transformAndStore(ormliteTradingStrategy.getId(), ts.getMetrics());
@@ -78,7 +78,7 @@ final class TradingStrategyTransformer {
 		}
 	}
 
-	private void transformAndStore(int tradingStrategyId, StockExecution se, String algorithmType, int index) throws SQLException {
+	private void transformAndStore(int tradingStrategyId, StockExecutionInstance se, String algorithmType, int index) throws SQLException {
 		final OrmliteOptimizerExecutionInstance ormliteExecutionInstance = new OrmliteOptimizerExecutionInstance(tradingStrategyId);
 		ormliteExecutionInstance.setAlgorithmName(se.getAlgorithmName());
 		ormliteExecutionInstance.setExecutionInstanceName(se.getExecutionName());
@@ -88,7 +88,7 @@ final class TradingStrategyTransformer {
 		transformAndStoreSettings(ormliteExecutionInstance.getId(), se.getSettings());
 	}
 
-	private void transformAndStore(int tradingStrategyId, EodExecution se, String algorithmType, int index) throws SQLException {
+	private void transformAndStore(int tradingStrategyId, EodExecutionInstance se, String algorithmType, int index) throws SQLException {
 		final OrmliteOptimizerExecutionInstance ormliteExecutionInstance = new OrmliteOptimizerExecutionInstance(tradingStrategyId);
 		ormliteExecutionInstance.setAlgorithmName(se.getAlgorithmName());
 		ormliteExecutionInstance.setExecutionInstanceName(se.getExecutionName());
