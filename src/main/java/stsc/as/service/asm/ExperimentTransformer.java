@@ -9,12 +9,12 @@ import com.google.common.collect.Lists;
 import stsc.common.FromToPeriod;
 import stsc.common.algorithms.AlgorithmType;
 import stsc.common.storage.StockStorage;
-import stsc.database.service.schemas.optimizer.experiments.OrmliteOptimizerDoubleParameter;
+import stsc.database.service.schemas.optimizer.experiments.OrmliteOptimizerDoubleDomen;
 import stsc.database.service.schemas.optimizer.experiments.OrmliteOptimizerExecution;
 import stsc.database.service.schemas.optimizer.experiments.OrmliteOptimizerExperiment;
-import stsc.database.service.schemas.optimizer.experiments.OrmliteOptimizerIntegerParameter;
-import stsc.database.service.schemas.optimizer.experiments.OrmliteOptimizerStringParameter;
-import stsc.database.service.schemas.optimizer.experiments.OrmliteOptimizerSubExecutionParameter;
+import stsc.database.service.schemas.optimizer.experiments.OrmliteOptimizerIntegerDomen;
+import stsc.database.service.schemas.optimizer.experiments.OrmliteOptimizerStringDomen;
+import stsc.database.service.schemas.optimizer.experiments.OrmliteOptimizerSubExecutionDomen;
 import stsc.database.service.storages.optimizer.OptimizerExperimentsDatabaseStorage;
 import stsc.general.simulator.multistarter.AlgorithmSettingsIteratorFactory;
 import stsc.general.simulator.multistarter.BadParameterException;
@@ -65,21 +65,21 @@ final class ExperimentTransformer {
 	private AlgorithmSettingsIteratorFactory transformExecution(OrmliteOptimizerExecution execution) throws SQLException, BadParameterException {
 		AlgorithmSettingsIteratorFactory algorithmFactory = new AlgorithmSettingsIteratorFactory();
 
-		final List<OrmliteOptimizerDoubleParameter> loadDoubleParameters = optimizerExperimentsDatabaseStorage.loadDoubleParameters(execution);
-		for (OrmliteOptimizerDoubleParameter dp : loadDoubleParameters) {
+		final List<OrmliteOptimizerDoubleDomen> loadDoubleParameters = optimizerExperimentsDatabaseStorage.loadDoubleParameters(execution);
+		for (OrmliteOptimizerDoubleDomen dp : loadDoubleParameters) {
 			algorithmFactory.add(new MpDouble(dp.getParameterName(), dp.getFrom(), dp.getTo(), dp.getStep()));
 		}
-		final List<OrmliteOptimizerIntegerParameter> loadIntegerParameters = optimizerExperimentsDatabaseStorage.loadIntegerParameters(execution);
-		for (OrmliteOptimizerIntegerParameter dp : loadIntegerParameters) {
+		final List<OrmliteOptimizerIntegerDomen> loadIntegerParameters = optimizerExperimentsDatabaseStorage.loadIntegerParameters(execution);
+		for (OrmliteOptimizerIntegerDomen dp : loadIntegerParameters) {
 			algorithmFactory.add(new MpInteger(dp.getParameterName(), dp.getFrom(), dp.getTo(), dp.getStep()));
 		}
-		final List<OrmliteOptimizerStringParameter> loadStringParameters = optimizerExperimentsDatabaseStorage.loadStringParameters(execution);
-		for (OrmliteOptimizerStringParameter dp : loadStringParameters) {
+		final List<OrmliteOptimizerStringDomen> loadStringParameters = optimizerExperimentsDatabaseStorage.loadStringParameters(execution);
+		for (OrmliteOptimizerStringDomen dp : loadStringParameters) {
 			algorithmFactory.add(new MpString(dp.getParameterName(), Lists.newArrayList(dp.getParameterDomen().split("\\|"))));
 		}
-		final List<OrmliteOptimizerSubExecutionParameter> loadSubExecutionParameters = optimizerExperimentsDatabaseStorage
+		final List<OrmliteOptimizerSubExecutionDomen> loadSubExecutionParameters = optimizerExperimentsDatabaseStorage
 				.loadSubExecutionParameters(execution);
-		for (OrmliteOptimizerSubExecutionParameter dp : loadSubExecutionParameters) {
+		for (OrmliteOptimizerSubExecutionDomen dp : loadSubExecutionParameters) {
 			algorithmFactory.add(new MpSubExecution(dp.getParameterName(), Lists.newArrayList(dp.getParameterDomen().split("\\|"))));
 		}
 		return algorithmFactory;

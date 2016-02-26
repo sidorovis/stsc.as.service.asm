@@ -17,7 +17,7 @@ import stsc.database.service.storages.optimizer.OptimizerDatabaseStorage;
 import stsc.database.service.storages.optimizer.OptimizerTradingStrategiesDatabaseStorage;
 import stsc.distributed.common.types.SimulatorSettingsExternalizable;
 import stsc.distributed.spark.grid.GridSparkStarter;
-import stsc.general.simulator.SimulatorConfiguration;
+import stsc.general.simulator.Execution;
 import stsc.general.simulator.multistarter.BadParameterException;
 import stsc.general.simulator.multistarter.grid.SimulatorSettingsGridList;
 import stsc.general.strategy.TradingStrategy;
@@ -71,7 +71,7 @@ final class ExperimentSolver {
 		final SimulatorSettingsGridList experiment = experimentTransformer.transform(stockStorage, ormliteOptimizerExperiment);
 
 		final ArrayList<SimulatorSettingsExternalizable> externalizableExperiment = new ArrayList<>();
-		for (SimulatorConfiguration ss : experiment) {
+		for (Execution ss : experiment) {
 			externalizableExperiment.add(new SimulatorSettingsExternalizable(ss));
 		}
 

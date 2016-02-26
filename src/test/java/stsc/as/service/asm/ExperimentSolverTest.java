@@ -17,11 +17,11 @@ import stsc.algorithms.primitive.eod.OpenWhileSignalAlgorithm;
 import stsc.common.Day;
 import stsc.common.algorithms.AlgorithmType;
 import stsc.database.migrations.optimizer.OptimizerDatabaseSettings;
-import stsc.database.service.schemas.optimizer.experiments.OrmliteOptimizerDoubleParameter;
+import stsc.database.service.schemas.optimizer.experiments.OrmliteOptimizerDoubleDomen;
 import stsc.database.service.schemas.optimizer.experiments.OrmliteOptimizerExecution;
 import stsc.database.service.schemas.optimizer.experiments.OrmliteOptimizerExperiment;
-import stsc.database.service.schemas.optimizer.experiments.OrmliteOptimizerStringParameter;
-import stsc.database.service.schemas.optimizer.experiments.OrmliteOptimizerSubExecutionParameter;
+import stsc.database.service.schemas.optimizer.experiments.OrmliteOptimizerStringDomen;
+import stsc.database.service.schemas.optimizer.experiments.OrmliteOptimizerSubExecutionDomen;
 import stsc.database.service.schemas.optimizer.trading.strategies.OrmliteOptimizerDoubleMetric;
 import stsc.database.service.schemas.optimizer.trading.strategies.OrmliteOptimizerEquityCurveValue;
 import stsc.database.service.schemas.optimizer.trading.strategies.OrmliteOptimizerIntegerMetric;
@@ -63,7 +63,7 @@ public class ExperimentSolverTest {
 		a2.setExecutionName("a2");
 		storage.getExperimentsStorage().saveExecution(a2);
 
-		final OrmliteOptimizerStringParameter e = new OrmliteOptimizerStringParameter(a2.getId());
+		final OrmliteOptimizerStringDomen e = new OrmliteOptimizerStringDomen(a2.getId());
 		e.setParameterName("e");
 		e.setParameterDomen("high|low|close");
 		storage.getExperimentsStorage().saveStringParameter(e);
@@ -74,12 +74,12 @@ public class ExperimentSolverTest {
 		d.setExecutionName("diff");
 		storage.getExperimentsStorage().saveExecution(d);
 
-		final OrmliteOptimizerSubExecutionParameter sub1 = new OrmliteOptimizerSubExecutionParameter(d.getId());
+		final OrmliteOptimizerSubExecutionDomen sub1 = new OrmliteOptimizerSubExecutionDomen(d.getId());
 		sub1.setParameterName("a1");
 		sub1.setParameterDomen("a1");
 		storage.getExperimentsStorage().saveSubExecutionParameter(sub1);
 
-		final OrmliteOptimizerSubExecutionParameter sub2 = new OrmliteOptimizerSubExecutionParameter(d.getId());
+		final OrmliteOptimizerSubExecutionDomen sub2 = new OrmliteOptimizerSubExecutionDomen(d.getId());
 		sub2.setParameterName("a2");
 		sub2.setParameterDomen("a2");
 		storage.getExperimentsStorage().saveSubExecutionParameter(sub2);
@@ -90,14 +90,14 @@ public class ExperimentSolverTest {
 		level.setExecutionName("level");
 		storage.getExperimentsStorage().saveExecution(level);
 
-		final OrmliteOptimizerDoubleParameter f = new OrmliteOptimizerDoubleParameter(level.getId());
+		final OrmliteOptimizerDoubleDomen f = new OrmliteOptimizerDoubleDomen(level.getId());
 		f.setParameterName("f");
 		f.setFrom(0.1);
 		f.setStep(0.1);
 		f.setTo(0.9);
 		storage.getExperimentsStorage().saveDoubleParameter(f);
 
-		final OrmliteOptimizerSubExecutionParameter pd = new OrmliteOptimizerSubExecutionParameter(level.getId());
+		final OrmliteOptimizerSubExecutionDomen pd = new OrmliteOptimizerSubExecutionDomen(level.getId());
 		pd.setParameterName("diff");
 		pd.setParameterDomen("diff");
 		storage.getExperimentsStorage().saveSubExecutionParameter(pd);
@@ -108,7 +108,7 @@ public class ExperimentSolverTest {
 		openWhile.setExecutionName("trading_algorithm");
 		storage.getExperimentsStorage().saveExecution(openWhile);
 
-		final OrmliteOptimizerSubExecutionParameter pl = new OrmliteOptimizerSubExecutionParameter(openWhile.getId());
+		final OrmliteOptimizerSubExecutionDomen pl = new OrmliteOptimizerSubExecutionDomen(openWhile.getId());
 		pl.setParameterName("level");
 		pl.setParameterDomen("level");
 		storage.getExperimentsStorage().saveSubExecutionParameter(pl);
