@@ -14,7 +14,6 @@ import stsc.common.algorithms.BadAlgorithmException;
 import stsc.common.storage.StockStorage;
 import stsc.database.service.schemas.optimizer.experiments.OrmliteOptimizerExperiment;
 import stsc.database.service.storages.optimizer.OptimizerDatabaseStorage;
-import stsc.database.service.storages.optimizer.OptimizerTradingStrategiesDatabaseStorage;
 import stsc.distributed.common.types.SimulatorSettingsExternalizable;
 import stsc.distributed.spark.grid.GridSparkStarter;
 import stsc.general.simulator.Execution;
@@ -66,7 +65,7 @@ final class ExperimentSolver {
 		}
 	}
 
-	private void executeSolver(OrmliteOptimizerExperiment ormliteOptimizerExperiment) throws SQLException, BadParameterException, BadAlgorithmException {
+	private void executeSolver(final OrmliteOptimizerExperiment ormliteOptimizerExperiment) throws SQLException, BadParameterException, BadAlgorithmException {
 		final ExperimentTransformer experimentTransformer = new ExperimentTransformer(optimizerDatabaseStorage.getExperimentsStorage());
 		final SimulatorSettingsGridList experiment = experimentTransformer.transform(stockStorage, ormliteOptimizerExperiment);
 
@@ -79,13 +78,12 @@ final class ExperimentSolver {
 		final List<TradingStrategy> tradingStrategies = gridSparkStarter.searchOnSpark(externalizableExperiment);
 
 		for (TradingStrategy ts : tradingStrategies) {
-			saveTradingStrategy(ts);
+			saveTradingStrategy(ormliteOptimizerExperiment, ts);
 		}
 	}
 
-	private void saveTradingStrategy(TradingStrategy ts) throws SQLException {
-		final OptimizerTradingStrategiesDatabaseStorage storage = optimizerDatabaseStorage.getTradingStrategiesStorage();
-		final TradingStrategyTransformer transformer = new TradingStrategyTransformer(storage);
+	private void saveTradingStrategy(OrmliteOptimizerExperiment ormliteOptimizerExperiment, TradingStrategy ts) throws SQLException {
+		final TradingStrategyTransformer transformer = new TradingStrategyTransformer(optimizerDatabaseStorage, ormliteOptimizerExperiment);
 		transformer.transformAndStore(ts);
 	}
 
